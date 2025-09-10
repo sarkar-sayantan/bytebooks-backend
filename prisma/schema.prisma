@@ -1,0 +1,143 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+enum EntryType {
+  INCOME
+  EXPENSE
+}
+
+enum BillStatus {
+  DRAFT
+  ISSUED
+  PAID
+  CANCELLED
+}
+
+model Tenant {
+  id        String     @id @default(uuid())
+  name      String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  categories    Category[]
+  entries       Entry[]
+  customers     Customer[]
+  employees     Employee[]
+  employeeRoles EmployeeRole[]
+  bills         Bill[]
+}
+
+model Category {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  name      String
+  type      EntryType
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  entries   Entry[]
+  billItems BillItem[]
+
+  @@unique([tenantId, name, type]) // no duplicate categories within tenant+type
+}
+
+model Entry {
+  id          String    @id @default(uuid())
+  tenantId    String
+  tenant      Tenant    @relation(fields: [tenantId], references: [id])
+  type        EntryType
+  categoryId  String
+  category    Category  @relation(fields: [categoryId], references: [id])
+  amount      Decimal
+  date        DateTime
+  description String?
+  billId      String?
+  bill        Bill?     @relation(fields: [billId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Customer {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  name      String
+  email     String?
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  bills     Bill[]
+}
+
+model Employee {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  name      String
+  email     String?
+  phone     String?
+  salary    Decimal
+  roleId    String
+  role      EmployeeRole @relation(fields: [roleId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model EmployeeRole {
+  id          String   @id @default(uuid())
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  name        String
+  description String?
+  permissions String[] // Array of permission strings
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  employees Employee[]
+
+  @@unique([tenantId, name]) // unique role name within tenant
+}
+
+model Bill {
+  id         String     @id @default(uuid())
+  tenantId   String
+  tenant     Tenant     @relation(fields: [tenantId], references: [id])
+  number     String
+  customerId String?
+  customer   Customer?  @relation(fields: [customerId], references: [id])
+  date       DateTime   @default(now())
+  dueDate    DateTime?
+  total      Decimal
+  status     BillStatus @default(ISSUED)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  items      BillItem[]
+  entries    Entry[]
+
+  @@unique([tenantId, number]) // unique bill number within tenant
+}
+
+model BillItem {
+  id          String    @id @default(uuid())
+  billId      String
+  bill        Bill      @relation(fields: [billId], references: [id])
+  categoryId  String
+  category    Category  @relation(fields: [categoryId], references: [id])
+  description String?
+  amount      Decimal
+}
