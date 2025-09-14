@@ -1,5 +1,5 @@
 import express from "express";
-import { addEmployee, getEmployees, getEmployeeById, updateEmployee, deleteEmployee } from "../controllers/employee.controller.js";
+import { addEmployee, getEmployees, getEmployeeById, getEmployeesByEmail, updateEmployee, deleteEmployee } from "../controllers/employee.controller.js";
 
 const router = express.Router();
 
@@ -64,6 +64,32 @@ router.post("/", addEmployee);
  *         description: List of employees
  */
 router.get("/", getEmployees);
+
+/**
+ * @openapi
+ * /employees/email/{email}:
+ *   get:
+ *     summary: Get an employee by email
+ *     tags: 
+ *       - Employees
+ *     parameters:
+ *       - in: path
+ *         name: email
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Employee found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Employee'
+ *       404:
+ *         description: Employee not found
+ */
+router.get('/email/:email', getEmployeesByEmail);
+
 /**
  * @openapi
  * /employees/detail/{id}:

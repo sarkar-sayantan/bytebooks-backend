@@ -30,6 +30,16 @@ export const getEmployeeById = async (req, res, next) => {
   }
 };
 
+export const getEmployeesByEmail = async (req, res, next) => {
+  try {
+    const employee = await employeeService.getEmployeeByEmail(req.params.email);
+    if (!employee) return res.status(404).json({ error: "Employee not found" });
+    res.json(employee);
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const updateEmployee = async (req, res, next) => {
   try {
     const employee = await employeeService.updateEmployee(req.params.id, req.body);

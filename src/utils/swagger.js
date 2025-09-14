@@ -21,6 +21,46 @@ const swaggerDefinition = {
         bearerFormat: "JWT",
       },
     },
+    schemas: {
+      Bill: {
+        type: "object",
+        properties: {
+          id: { type: "string" },
+          tenantId: { type: "string" },
+          number: { type: "string" },
+          customerId: { type: "string", nullable: true },
+          date: { type: "string", format: "date-time" },
+          dueDate: { type: "string", format: "date-time", nullable: true },
+          total: { type: "string" },
+          status: { type: "string", enum: ["DRAFT", "ISSUED", "PAID", "CANCELLED"] },
+          createdAt: { type: "string", format: "date-time" },
+          updatedAt: { type: "string", format: "date-time" },
+        },
+      },
+      BillItem: {
+        type: "object",
+        properties: {
+          id: { type: "string" },
+          billId: { type: "string" },
+          categoryId: { type: "string" },
+          description: { type: "string", nullable: true },
+          amount: { type: "string" },
+        },
+      },
+      User: {
+        type: "object",
+        properties: {
+          id: { type: "string" },
+          email: { type: "string" },
+          name: { type: "string", nullable: true },
+          image: { type: "string", nullable: true },
+          tenantId: { type: "string", nullable: true },
+          role: { type: "string", enum: ["ADMIN", "EMPLOYEE", "OWNER"] },
+          createdAt: { type: "string", format: "date-time" },
+          updatedAt: { type: "string", format: "date-time" },
+        },
+      },
+    },
   },
   security: [{ bearerAuth: [] }],
 };

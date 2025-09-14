@@ -1,3 +1,4 @@
+
 import * as employeeRepo from "../repositories/employee.repo.js";
 
 export const addEmployee = async ({ tenantId, name, email, phone, salary, roleId }) => {
@@ -6,6 +7,10 @@ export const addEmployee = async ({ tenantId, name, email, phone, salary, roleId
 
 export const getEmployees = async (tenantId) => {
   return employeeRepo.findEmployeesByTenant(tenantId);
+};
+
+export const getEmployeeByEmail = async (email) => {
+  return employeeRepo.findEmployeeByEmail(email);
 };
 
 export const getEmployeeById = async (id) => employeeRepo.findEmployeeById(id);
