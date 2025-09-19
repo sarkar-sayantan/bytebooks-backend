@@ -4,17 +4,16 @@ const SESSION_SECRET = process.env.SESSION_SECRET;
 const SESSION_COOKIE = "session-token";
 
 export const authMiddleware = (req, res, next) => {
-	const token = req.cookies?.[SESSION_COOKIE] || req.headers["authorization"]?.replace("Bearer ", "");
+	const token = req.headers.authorization?.split(" ")[1] 
+    || req.cookies["authjs.session-token"];
 
-	if (!token) {
-		return res.status(401).json({ error: "Authentication required" });
-	}
+  if (!token) return res.status(401).json({ error: "Unauthorized" });
 
-	try {
-		const user = jwt.verify(token, SESSION_SECRET);
-		req.user = user;
-		next();
-	} catch (err) {
-		return res.status(401).json({ error: "Invalid or expired session" });
-	}
+  try {
+    const decoded = jwt.verify(token, SESSION_SECRET);
+    req.user = decoded;
+    next();
+  } catch (err) {
+    return res.status(403).json({ error: "Invalid token" });
+  }
 };

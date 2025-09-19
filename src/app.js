@@ -13,6 +13,7 @@ import billRoutes from "./routes/bill.routes.js";
 import billItemRoutes from "./routes/billItem.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
+import { authMiddleware } from "./middlewares/auth.js";
 
 const app = express();
 const prisma = new PrismaClient();
@@ -20,9 +21,10 @@ const prisma = new PrismaClient();
 // Middlewares
 app.use(cors());
 app.use(express.json());
-
 // Swagger docs
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+//app.use(authMiddleware);
 
 // Routes
 app.use("/entries", entryRoutes);
