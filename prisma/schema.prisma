@@ -26,18 +26,50 @@ enum BillStatus {
   CANCELLED
 }
 
-model Tenant {
-  id        String     @id @default(uuid())
-  name      String
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+enum TenantType {
+  BUSINESS
+  PERSONAL
+}
 
+enum UserRole {
+  ADMIN     // Business owner
+  EMPLOYEE  // Business employee
+  OWNER     // Personal usage
+}
+
+model Tenant {
+  id          String        @id @default(uuid())
+  name        String
+  type        TenantType    @default(BUSINESS)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  // Business-specific fields (nullable for personal accounts)
+  address             String?
+  gstNumber           String?   @unique // GSTIN (15 characters)
+  registrationNumber  String?   // Could be company PAN/CIN, shop act reg, etc.
+  businessPhone       String?
+  businessEmail       String?
+
+  users         User[]
   categories    Category[]
   entries       Entry[]
   customers     Customer[]
   employees     Employee[]
   employeeRoles EmployeeRole[]
   bills         Bill[]
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  image     String?
+  tenantId  String?
+  tenant    Tenant?  @relation(fields: [tenantId], references: [id])
+  role      UserRole @default(OWNER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Category {
@@ -88,7 +120,7 @@ model Employee {
   tenantId  String
   tenant    Tenant   @relation(fields: [tenantId], references: [id])
   name      String
-  email     String?
+  email     String @unique
   phone     String?
   salary    Decimal
   roleId    String

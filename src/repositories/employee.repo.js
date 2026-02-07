@@ -47,6 +47,28 @@ export const findEmployeeById = async (id) => {
   };
 };
 
+export const findEmployeeByEmail = async (email) => {
+  const emp = await prisma.employee.findUnique({
+    where: { email } ,
+    include: { role: true }
+  });
+
+  if (!emp) return null;
+
+  return {
+    id: emp.id,
+    tenantId: emp.tenantId,
+    name: emp.name,
+    email: emp.email,
+    phone: emp.phone,
+    salary: emp.salary,
+    role: emp.role?.name,  // return role name
+    createdAt: emp.createdAt,
+    updatedAt: emp.updatedAt
+  };
+};
+
+
 export const updateEmployee = async (id, data) => awaitprisma.employee.update({ where: { id }, data });
 
 export const deleteEmployee = async (id) => await prisma.employee.delete({ where: { id } });

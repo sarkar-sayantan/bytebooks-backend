@@ -6,13 +6,16 @@ export const createEntry = (data) => {
 };
 
 export const findEntriesByTenant = (tenantId, type = null) => {
-  const whereClause = { tenantId };
   
-  // Add type filter if provided
+  const whereClause = { 
+    tenantId : tenantId
+  };
+  
   if (type) {
-    whereClause.type = type.toUpperCase(); // Convert to uppercase for Prisma enum
+    const normalizedType = type.toUpperCase();
+    whereClause.type = normalizedType;
   }
-  
+
   return prisma.entry.findMany({
     where: whereClause,
     include: { category: true },
